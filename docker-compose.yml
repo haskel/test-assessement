@@ -1,0 +1,38 @@
+services:
+  backend-cli:
+    build:
+      context: environment/php
+      dockerfile: Dockerfile
+      args:
+        TIMEZONE: ${TIMEZONE:-UTC}
+        UID: ${UID:-501}
+        GID: ${GID:-1001}
+    container_name: wisebits.php.dev
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      APP_ENV: "dev"
+      PHP_IDE_CONFIG: "serverName=docker"
+    expose:
+      - ${XDEBUG_PORT:-9003}
+    volumes:
+      - .:/var/www/app
+
+  database:
+    image: mysql:8.0
+    container_name: wisebits.mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
+      MYSQL_USER: ${MYSQL_USER:-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-app}
+    ports:
+      - ${MYSQL_PORT:-3306}:3306
+    volumes:
+      - mysql_data:/var/lib/mysql:rw
+
+volumes:
+  mysql_data:
